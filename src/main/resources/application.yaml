@@ -1,0 +1,11 @@
+spring:
+  application:
+    name: dt2influx
+
+management:
+  influx:
+    metrics:
+      export:
+        auto-create-db: false
+        api-version: v1
+        enabled: false
