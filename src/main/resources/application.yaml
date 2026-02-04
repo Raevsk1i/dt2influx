@@ -22,4 +22,6 @@ env:
   reflex:
     url: ""
     token: ""
+    period: "30m"
+    interval: "5m"
 
