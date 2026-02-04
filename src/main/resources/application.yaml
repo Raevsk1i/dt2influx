@@ -9,3 +9,17 @@ management:
         auto-create-db: false
         api-version: v1
         enabled: false
+
+env:
+  influx:
+    url: ""
+    user: ""
+    pass: ""
+    database: ""
+    batch_size: 1000
+    batch_interval_ms: 3000000
+
+  reflex:
+    url: ""
+    token: ""
+
