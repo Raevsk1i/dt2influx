@@ -1,7 +1,9 @@
 package com.github.raevsk1i.dt2influx.job;
 
 import com.github.raevsk1i.dt2influx.entity.JobInfo;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 public class FPJob extends AbstractJob {
 
     public FPJob(JobInfo info, boolean oneTime) {
@@ -10,6 +12,6 @@ public class FPJob extends AbstractJob {
 
     @Override
     public void run() {
-        return;
+        System.out.println("РАБОТАЕМ, РАБОТАЕМ, ПОТОРАПЛИВАЕМСЯ!");
     }
 }
