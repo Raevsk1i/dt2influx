@@ -9,19 +9,39 @@ management:
         auto-create-db: false
         api-version: v1
         enabled: false
+  dynatrace:
+    metrics:
+      export:
+        enabled: false
+  prometheus:
+    metrics:
+      export:
+        enabled: false
+  datadog:
+    metrics:
+      export:
+        enabled: false
+  appoptics:
+    metrics:
+      export:
+        enabled: false
+  atlas:
+    metrics:
+      export:
+        enabled: false
 
 env:
   influx:
-    url: ""
-    user: ""
-    pass: ""
-    database: ""
+    url: "http://localhost:8686"
+    user: "admin"
+    pass: "admin"
+    database: "mydb"
     batch_size: 1000
     batch_interval_ms: 3000000
 
   reflex:
-    url: ""
-    token: ""
+    url: "https://reflex/port/dddd"
+    token: " Api-Token dt-c12312312"
     period: "30m"
-    interval: "5m"
+    interval: 5
 
