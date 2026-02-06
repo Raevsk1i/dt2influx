@@ -7,9 +7,13 @@ import java.util.concurrent.*;
 
 public interface IJobScheduler {
     ConcurrentHashMap<String, ScheduledFuture<?>> jobs = new ConcurrentHashMap<>();
-    ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(0);
+    ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(4);
 
-    JobInfo scheduleJob(AbstractJob job, Integer interval);
+    JobInfo executeJob(AbstractJob job, Integer interval);
+
+    JobInfo executeJob(AbstractJob job);
 
     Boolean stopScheduledJob(String namespace) throws InterruptedException;
+
+    ScheduledFuture<?> getAliveJob(String namespace);
 }
