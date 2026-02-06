@@ -6,10 +6,10 @@ import com.github.raevsk1i.dt2influx.job.AbstractJob;
 import java.util.concurrent.*;
 
 public interface IJobScheduler {
-    ConcurrentHashMap<String, ScheduledFuture<?>> map = new ConcurrentHashMap<>();
+    ConcurrentHashMap<String, ScheduledFuture<?>> jobs = new ConcurrentHashMap<>();
     ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(0);
 
     JobInfo scheduleJob(AbstractJob job, Integer interval);
 
-    JobInfo stopScheduledJob(String namespace) throws InterruptedException;
+    Boolean stopScheduledJob(String namespace) throws InterruptedException;
 }
