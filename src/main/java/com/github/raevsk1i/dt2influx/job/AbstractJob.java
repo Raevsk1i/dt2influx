@@ -10,11 +10,8 @@ public abstract class AbstractJob implements Runnable {
 
     private JobInfo info;
 
-    public final boolean oneTime;
-
-    public AbstractJob(JobInfo info, boolean oneTime) {
+    public AbstractJob(JobInfo info) {
         this.info = info;
-        this.oneTime = oneTime;
     }
 
     @Override
