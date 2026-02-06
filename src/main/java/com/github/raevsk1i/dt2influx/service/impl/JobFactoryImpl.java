@@ -7,7 +7,6 @@ import com.github.raevsk1i.dt2influx.job.AbstractJob;
 import com.github.raevsk1i.dt2influx.job.FPJob;
 import com.github.raevsk1i.dt2influx.service.IJobFactory;
 import org.springframework.stereotype.Component;
-import org.springframework.web.client.HttpClientErrorException;
 
 import java.time.LocalDateTime;
 
@@ -18,13 +17,10 @@ public class JobFactoryImpl implements IJobFactory {
     public AbstractJob createJob(JobInfo info) {
         info.setCreateDate(LocalDateTime.now());
         switch (info.getType()) {
-            case JobType.FP -> {
-                return new FPJob(info, false);
+            case JobType.FP, JobType.ONETIME -> {
+                return new FPJob(info);
             }
             case JobType.DB -> {
-                return null;
-            }
-            case JobType.ONETIME -> {
                 return null;
             }
             default -> {
