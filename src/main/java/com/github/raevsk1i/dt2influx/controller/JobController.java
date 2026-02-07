@@ -22,7 +22,7 @@ public class JobController {
         this.service = service;
     }
 
-    @PostMapping("/create/job")
+    @PostMapping("/create/job/fp")
     public ResponseEntity<JobResponseDto> createJob(@RequestBody CreateJobRequestDto request) {
         return service.createJob(request);
     }
