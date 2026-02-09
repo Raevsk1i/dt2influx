@@ -119,6 +119,22 @@ public class JobService {
         }
     }
 
+    /**
+     * Creates and executes a one-time job based on the provided request parameters.
+     * This method is designed for running jobs that execute immediately for a specific
+     * time range (from-to) rather than on a recurring schedule.
+     * <p>
+     * The method validates the request using a dedicated validator, creates job metadata
+     * with ONETIME type, instantiates the job via factory, and immediately executes it
+     * without scheduling. Unlike scheduled jobs, one-time jobs are not tracked in the
+     * createdJobs map for long-term management.
+     * <p>
+     * Note: This implementation differs from createJob() which schedules recurring jobs
+     * with FP (Face Props) type.
+     *
+     * @param request DTO containing parameters for one-time job creation including namespace and mzId
+     * @return ResponseEntity with JobResponseDto containing job information and execution status
+     */
     public ResponseEntity<JobResponseDto> createFromToJob(CreateFromToJobRequestDto request) {
         if (!validator.isValidRequest(request)) {
             return ResponseEntity.badRequest()
