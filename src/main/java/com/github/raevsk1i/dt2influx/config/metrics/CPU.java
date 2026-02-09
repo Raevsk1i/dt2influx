@@ -20,7 +20,7 @@ public final class CPU {
                     "(builtin:containers.cpu.throttledMilliCores):names"),
             new MetricDefinition(
                     "throttled_time",
-                    "(builtin:containers.cpu.throttled Time):names")
+                    "(builtin:containers.cpu.throttledTime):names")
 
 
 //          TODO: if new metrics will available
