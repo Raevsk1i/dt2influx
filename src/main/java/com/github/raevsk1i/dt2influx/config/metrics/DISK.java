@@ -1,9 +1,11 @@
 package com.github.raevsk1i.dt2influx.config.metrics;
 
 import com.github.raevsk1i.dt2influx.entity.MetricDefinition;
+import lombok.Data;
 
 import java.util.List;
 
+@Data
 public final class DISK {
     public static final List<MetricDefinition> metrics = List.of(
             new MetricDefinition(
