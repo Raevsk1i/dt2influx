@@ -1,6 +1,32 @@
 package com.github.raevsk1i.dt2influx.config.metrics;
 
-import io.micrometer.dynatrace.DynatraceConfig;
+import com.github.raevsk1i.dt2influx.entity.MetricDefinition;
+
+import java.util.List;
 
 public final class CPU {
+    public static final List<MetricDefinition> metrics = List.of(
+            new MetricDefinition(
+                    "usage_percent",
+                    "(builtin:containers.cpu.usagePercent):names"),
+            new MetricDefinition(
+                    "limit_millicores",
+                    "(builtin:containers.cpu.limit):names"),
+            new MetricDefinition(
+                    "usage_millicores",
+                    "(builtin:containers.cpu.usageMilliCores):names"),
+            new MetricDefinition(
+                    "throttled_millicores",
+                    "(builtin:containers.cpu.throttledMilliCores):names"),
+            new MetricDefinition(
+                    "throttled_time",
+                    "(builtin:containers.cpu.throttled Time):names")
+
+
+//          TODO: if new metrics will available
+
+//            new MetricDefinition(
+//                    "",
+//                    "")
+    );
 }
