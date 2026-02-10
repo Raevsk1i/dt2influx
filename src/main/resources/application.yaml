@@ -38,6 +38,7 @@ env:
     database: "mydb"
     batch_size: 1000
     batch_interval_ms: 3000000
+    retention_policy: "base_ret"
 
   reflex:
     url: "https://reflex/port/dddd"
