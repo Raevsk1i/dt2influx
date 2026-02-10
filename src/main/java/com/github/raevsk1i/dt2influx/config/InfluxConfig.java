@@ -1,10 +1,7 @@
 package com.github.raevsk1i.dt2influx.config;
 
 import jakarta.annotation.PostConstruct;
-import jakarta.validation.constraints.Max;
-import jakarta.validation.constraints.Min;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Pattern;
+import jakarta.validation.constraints.*;
 import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Configuration;
@@ -31,13 +28,16 @@ public class InfluxConfig {
     @NotBlank(message = "InfluxDB database name is required")
     private String database;
 
-    @NotBlank(message = "Batch size is required")
+    @NotNull(message = "Batch size is required")
     @Min(1)
     @Max(10000)
-    private String batch_size;
+    private Integer batch_size;
 
-    @NotBlank(message = "Batch interval in milliseconds is required")
-    private String batch_interval_ms;
+    @NotNull(message = "Batch interval in milliseconds is required")
+    private Integer batch_interval_ms;
+
+    @NotBlank(message = "Retention policy is required")
+    private String retention_policy;
 
     private boolean enabled = true;
 
