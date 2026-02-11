@@ -1,3 +1,5 @@
 package com.github.raevsk1i.dt2influx.entity;
 
-public record MetricDefinition (String field, String metricSelector) {}
+import com.github.raevsk1i.dt2influx.enums.MetricMeasurement;
+
+public record MetricDefinition (MetricMeasurement measurement, String field, String metricSelector) {}
