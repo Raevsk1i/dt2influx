@@ -8,7 +8,7 @@ import com.github.raevsk1i.dt2influx.dto.response.JobResponseDto;
 import com.github.raevsk1i.dt2influx.dto.response.JobsAliveResponseDto;
 import com.github.raevsk1i.dt2influx.entity.JobInfo;
 import com.github.raevsk1i.dt2influx.enums.JobType;
-import com.github.raevsk1i.dt2influx.exceptions.JobStopFailedException;
+import com.github.raevsk1i.dt2influx.enums.StopJobStatus;
 import com.github.raevsk1i.dt2influx.job.AbstractJob;
 import com.github.raevsk1i.dt2influx.utils.RequestValidator;
 import lombok.RequiredArgsConstructor;
@@ -99,24 +99,24 @@ public class JobService {
                     .body(new JobResponseDto(null, "Job not found"));
         }
 
-        try {
-            scheduler.stopScheduledJob(namespace);
+        StopJobStatus stopStatus = scheduler.stopScheduledJob(namespace);
+
+        if (stopStatus == StopJobStatus.SUCCESS) {
             createdJobs.remove(namespace);
             log.info("Job stopped successfully for namespace: {}", namespace);
             return ResponseEntity.ok(new JobResponseDto(job.getInfo().cancel(), "Job stopped successfully"));
-        } catch (JobStopFailedException e) {
-            log.error("Failed to stop job for namespace: {}", namespace, e);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(new JobResponseDto(job.getInfo(), "Failed to stop job: " + e.getMessage()));
-        } catch (Exception e) {
-            log.error("Unexpected error while stopping job for namespace: {}", namespace, e);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(new JobResponseDto(job.getInfo(), "Unexpected error occurred: " + e.getMessage()));
-        } finally {
-            if (scheduler.getAliveJob(namespace) == null) {
-                createdJobs.remove(namespace);
-            }
         }
+
+        if (stopStatus == StopJobStatus.NOT_FOUND) {
+            createdJobs.remove(namespace);
+            log.warn("Scheduled job not found for namespace: {}", namespace);
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(new JobResponseDto(job.getInfo(), "Scheduled job not found"));
+        }
+
+        log.error("Failed to stop job for namespace: {}", namespace);
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(new JobResponseDto(job.getInfo(), "Failed to stop job"));
     }
 
     /**

@@ -1,19 +1,46 @@
 package com.github.raevsk1i.dt2influx.service.impl;
 
 import com.github.raevsk1i.dt2influx.entity.JobInfo;
-import com.github.raevsk1i.dt2influx.exceptions.JobStopFailedException;
+import com.github.raevsk1i.dt2influx.enums.StopJobStatus;
 import com.github.raevsk1i.dt2influx.job.AbstractJob;
 import com.github.raevsk1i.dt2influx.service.IJobScheduler;
 import lombok.extern.slf4j.Slf4j;
+import jakarta.annotation.PostConstruct;
+import jakarta.annotation.PreDestroy;
 import org.springframework.stereotype.Component;
 
-import java.time.Duration;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
 @Slf4j
 @Component
 public class JobSchedulerImpl implements IJobScheduler {
+
+    private final ConcurrentHashMap<String, ScheduledFuture<?>> jobs = new ConcurrentHashMap<>();
+    private ScheduledExecutorService scheduler;
+
+    @PostConstruct
+    public void initScheduler() {
+        scheduler = Executors.newScheduledThreadPool(4);
+    }
+
+    @PreDestroy
+    public void shutdownScheduler() {
+        scheduler.shutdown();
+
+        try {
+            if (!scheduler.awaitTermination(10, TimeUnit.SECONDS)) {
+                log.warn("Scheduler did not terminate in time, forcing shutdown");
+                scheduler.shutdownNow();
+            }
+        } catch (InterruptedException ex) {
+            Thread.currentThread().interrupt();
+            scheduler.shutdownNow();
+        }
+    }
 
     @Override
     public JobInfo executeJob(AbstractJob job, Integer interval) {
@@ -31,29 +58,27 @@ public class JobSchedulerImpl implements IJobScheduler {
     }
 
     @Override
-    public Boolean stopScheduledJob(String namespace) throws JobStopFailedException {
+    public StopJobStatus stopScheduledJob(String namespace) {
+        ScheduledFuture<?> future = jobs.remove(namespace);
+
+        if (future == null) {
+            log.warn("Job with namespace {} wasn't found in the jobs map", namespace);
+            return StopJobStatus.NOT_FOUND;
+        }
 
         try {
-            if (jobs.containsKey(namespace)) {
-                ScheduledFuture<?> future =  jobs.get(namespace);
-
-                for (int cycle = 0; cycle < 5; cycle++) {
-                    boolean cancelled = future.cancel(false);
-
-                    if (!cancelled) {
-                        log.info("Job is stopping...");
-                        Thread.sleep(Duration.ofSeconds(3));
-                        continue;
-                    }
-                    log.info("{} is stopped:", future);
-                    jobs.remove(namespace);
-                    return true;
-                }
+            if (future.isCancelled() || future.isDone() || future.cancel(false)) {
+                log.info("Job with namespace {} is stopped", namespace);
+                return StopJobStatus.SUCCESS;
             }
-            log.warn("Job with namespace {} wasn't found in the jobs map", namespace);
-            return false;
+
+            log.error("Failed to cancel job with namespace {}", namespace);
+            jobs.put(namespace, future);
+            return StopJobStatus.ERROR;
         } catch (Exception ex) {
-            throw new JobStopFailedException("Job didn't stop for 5 times", ex);
+            log.error("Unexpected error while stopping job with namespace {}", namespace, ex);
+            jobs.put(namespace, future);
+            return StopJobStatus.ERROR;
         }
     }
 
