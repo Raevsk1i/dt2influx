@@ -3,6 +3,7 @@ package com.github.raevsk1i.dt2influx.job;
 import com.github.raevsk1i.dt2influx.config.metrics.FpMetrics;
 import com.github.raevsk1i.dt2influx.dto.reflex.additional.DataResult;
 import com.github.raevsk1i.dt2influx.dto.reflex.response.ReflexResponse;
+import com.github.raevsk1i.dt2influx.entity.JobExecutionParams;
 import com.github.raevsk1i.dt2influx.entity.JobInfo;
 import com.github.raevsk1i.dt2influx.entity.MetricDefinition;
 import com.github.raevsk1i.dt2influx.enums.MetricMeasurement;
@@ -38,17 +39,23 @@ public class FPJob extends AbstractJob {
     public FPJob(JobInfo info, String reflexUrl, String token) {
         super(info, reflexUrl, token);
         params = new LinkedHashMap<>();
-        params.put("from", "-30m");
-        params.put("to", "now");
-        params.put("resolution", "1m");
-        params.put("mzSelector", info.getMzId());
+
+        JobExecutionParams executionParams = info.getExecutionParams();
+        if (executionParams == null) {
+            throw new IllegalArgumentException("Job execution params must be provided");
+        }
+
+        params.put("from", executionParams.getFrom());
+        params.put("to", executionParams.getTo());
+        params.put("resolution", executionParams.getResolution());
+        params.put("mzSelector", executionParams.getMzSelector());
     }
 
     @Override
     public void run() {
         ObjectMapper mapper = new ObjectMapper();
         try (HttpClient client = HttpsUtils.getHttpClient();
-                InfluxDB influxClient = InfluxUtils.getInfluxClient()) {
+             InfluxDB influxClient = InfluxUtils.getInfluxClient()) {
 
             if (client == null) {
                 throw new HttpClientIsNullException("Http client is null");

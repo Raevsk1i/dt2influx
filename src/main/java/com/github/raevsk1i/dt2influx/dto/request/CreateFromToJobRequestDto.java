@@ -16,4 +16,8 @@ public class CreateFromToJobRequestDto {
 
     @NonNull
     private String to;
+
+    private String resolution;
+
+    private String mzSelector;
 }

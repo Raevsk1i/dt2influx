@@ -20,6 +20,7 @@ public class JobInfo {
     private LocalDateTime createDate;
     private String name;
     private boolean cancelled = false;
+    private JobExecutionParams executionParams;
 
     public JobInfo cancel() {
         cancelled = true;

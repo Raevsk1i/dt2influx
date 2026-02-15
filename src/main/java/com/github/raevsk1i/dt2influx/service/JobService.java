@@ -6,6 +6,7 @@ import com.github.raevsk1i.dt2influx.dto.request.CreateJobRequestDto;
 import com.github.raevsk1i.dt2influx.dto.request.StopJobRequestDto;
 import com.github.raevsk1i.dt2influx.dto.response.JobResponseDto;
 import com.github.raevsk1i.dt2influx.dto.response.JobsAliveResponseDto;
+import com.github.raevsk1i.dt2influx.entity.JobExecutionParams;
 import com.github.raevsk1i.dt2influx.entity.JobInfo;
 import com.github.raevsk1i.dt2influx.enums.JobType;
 import com.github.raevsk1i.dt2influx.exceptions.JobStopFailedException;
@@ -16,6 +17,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 
 import java.util.List;
 import java.util.Map;
@@ -26,6 +28,10 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 public class JobService {
+
+    private static final String DEFAULT_FROM = "-30m";
+    private static final String DEFAULT_TO = "now";
+    private static final String DEFAULT_RESOLUTION = "1m";
 
     private final IJobScheduler scheduler;
     private final IJobFactory factory;
@@ -59,6 +65,12 @@ public class JobService {
         }
 
         JobInfo jobInfo = new JobInfo(namespace, request.getMzId(), JobType.FP);
+        jobInfo.setExecutionParams(new JobExecutionParams(
+                DEFAULT_FROM,
+                DEFAULT_TO,
+                DEFAULT_RESOLUTION,
+                request.getMzId()
+        ));
         AbstractJob job = factory.createJob(jobInfo);
 
         try {
@@ -136,14 +148,22 @@ public class JobService {
      * @return ResponseEntity with JobResponseDto containing job information and execution status
      */
     public ResponseEntity<JobResponseDto> createFromToJob(CreateFromToJobRequestDto request) {
-        if (!validator.isValidRequest(request)) {
+        String validationError = validator.validateCreateFromToRequest(request);
+        if (validationError != null) {
             return ResponseEntity.badRequest()
-                    .body(new JobResponseDto(null, "Invalid request: namespace and mzId are required"));
+                    .body(new JobResponseDto(null, validationError));
         }
 
         String namespace = request.getNamespace().toUpperCase();
 
         JobInfo jobInfo = new JobInfo(namespace, request.getMzId(), JobType.ONETIME);
+        jobInfo.setExecutionParams(new JobExecutionParams(
+                request.getFrom(),
+                request.getTo(),
+                StringUtils.hasText(request.getResolution()) ? request.getResolution() : DEFAULT_RESOLUTION,
+                StringUtils.hasText(request.getMzSelector()) ? request.getMzSelector() : request.getMzId()
+        ));
+
         AbstractJob job = factory.createJob(jobInfo);
 
         try {
