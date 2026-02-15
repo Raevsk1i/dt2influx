@@ -13,7 +13,6 @@ import java.util.Map;
 public abstract class AbstractJob implements Runnable {
 
     private JobInfo info;
-
     private String reflexUrl;
     private String token;
 
