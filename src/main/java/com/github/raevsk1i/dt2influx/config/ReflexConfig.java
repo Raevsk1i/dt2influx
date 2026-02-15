@@ -7,7 +7,6 @@ import jakarta.validation.constraints.Pattern;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.context.properties.ConfigurationProperties;
-import org.springframework.context.annotation.Configuration;
 import org.springframework.validation.annotation.Validated;
 
 import java.util.Objects;
@@ -15,7 +14,6 @@ import java.util.Objects;
 @Slf4j
 @Data
 @Validated
-@Configuration
 @ConfigurationProperties(prefix = "env.reflex")
 public class ReflexConfig {
 

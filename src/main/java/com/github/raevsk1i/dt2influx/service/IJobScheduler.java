@@ -13,7 +13,7 @@ public interface IJobScheduler {
 
     JobInfo executeJob(AbstractJob job);
 
-    Boolean stopScheduledJob(String namespace) throws InterruptedException;
+    Boolean stopScheduledJob(String namespace);
 
     ScheduledFuture<?> getAliveJob(String namespace);
 }

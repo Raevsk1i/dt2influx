@@ -20,6 +20,7 @@ public abstract class AbstractJob implements Runnable {
     public AbstractJob(JobInfo info, String reflexUrl, String token) {
         this.info = info;
         this.reflexUrl = reflexUrl;
+        this.token = token;
     }
 
     @Override
