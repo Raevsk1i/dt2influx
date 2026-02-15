@@ -5,16 +5,24 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.influxdb.InfluxDB;
 import org.influxdb.InfluxDBFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.EnableAsync;
+import org.springframework.stereotype.Component;
 
 import java.util.concurrent.TimeUnit;
 
 @Slf4j
 @EnableAsync
 @RequiredArgsConstructor
+@Component
 public final class InfluxUtils {
 
     private static InfluxConfig config;
+
+    @Autowired
+    public InfluxUtils(InfluxConfig config) {
+        InfluxUtils.config = config;
+    }
 
     public static synchronized InfluxDB getInfluxClient() {
         try {
