@@ -38,8 +38,8 @@ public class FPJob extends AbstractJob {
     public FPJob(JobInfo info, String reflexUrl, String token) {
         super(info, reflexUrl, token);
         params = new LinkedHashMap<>();
-        params.put("from", "-30m");
-        params.put("to", "now");
+        params.put("from", info.getFrom());
+        params.put("to", info.getTo());
         params.put("resolution", "1m");
         params.put("mzSelector", info.getMzId());
     }

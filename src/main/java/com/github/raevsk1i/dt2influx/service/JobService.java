@@ -143,7 +143,7 @@ public class JobService {
 
         String namespace = request.getNamespace().toUpperCase();
 
-        JobInfo jobInfo = new JobInfo(namespace, request.getMzId(), JobType.ONETIME);
+        JobInfo jobInfo = new JobInfo(namespace, request.getMzId(), JobType.ONETIME, request.getFrom(), request.getTo());
         AbstractJob job = factory.createJob(jobInfo);
 
         try {

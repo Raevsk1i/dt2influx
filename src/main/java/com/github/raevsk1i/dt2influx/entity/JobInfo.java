@@ -14,12 +14,22 @@ public class JobInfo {
         this.type = type;
     }
 
+    public JobInfo(String namespace, String mzId, JobType type, String from, String to) {
+        this.namespace = namespace;
+        this.mzId = mzId;
+        this.type = type;
+        this.from = from;
+        this.to = to;
+    }
+
     private String namespace;
     private String mzId;
     private JobType type;
     private LocalDateTime createDate;
     private String name;
     private boolean cancelled = false;
+    private String from = "-30m";
+    private String to = "now";
 
     public JobInfo cancel() {
         cancelled = true;
