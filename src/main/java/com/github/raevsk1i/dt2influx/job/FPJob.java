@@ -47,8 +47,9 @@ public class FPJob extends AbstractJob {
     @Override
     public void run() {
         ObjectMapper mapper = new ObjectMapper();
-        try (HttpClient client = HttpsUtils.getHttpClient();
-                InfluxDB influxClient = InfluxUtils.getInfluxClient()) {
+        try (InfluxDB influxClient = InfluxUtils.getInfluxClient()) {
+
+            HttpClient client = HttpsUtils.getHttpClient();
 
             if (client == null) {
                 throw new HttpClientIsNullException("Http client is null");
