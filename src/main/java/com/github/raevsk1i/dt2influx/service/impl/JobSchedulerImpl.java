@@ -22,24 +22,12 @@ public class JobSchedulerImpl implements IJobScheduler {
     private final ConcurrentHashMap<String, ScheduledFuture<?>> jobs = new ConcurrentHashMap<>();
     private ScheduledExecutorService scheduler;
 
+    /*
+    Post construct
+     */
     @PostConstruct
     public void initScheduler() {
         scheduler = Executors.newScheduledThreadPool(4);
-    }
-
-    @PreDestroy
-    public void shutdownScheduler() {
-        scheduler.shutdown();
-
-        try {
-            if (!scheduler.awaitTermination(10, TimeUnit.SECONDS)) {
-                log.warn("Scheduler did not terminate in time, forcing shutdown");
-                scheduler.shutdownNow();
-            }
-        } catch (InterruptedException ex) {
-            Thread.currentThread().interrupt();
-            scheduler.shutdownNow();
-        }
     }
 
     @Override
@@ -85,5 +73,23 @@ public class JobSchedulerImpl implements IJobScheduler {
     @Override
     public ScheduledFuture<?> getAliveJob(String namespace) {
         return jobs.get(namespace);
+    }
+
+    /*
+    Pre destroy
+     */
+    @PreDestroy
+    public void shutdownScheduler() {
+        scheduler.shutdown();
+
+        try {
+            if (!scheduler.awaitTermination(10, TimeUnit.SECONDS)) {
+                log.warn("Scheduler did not terminate in time, forcing shutdown");
+                scheduler.shutdownNow();
+            }
+        } catch (InterruptedException ex) {
+            Thread.currentThread().interrupt();
+            scheduler.shutdownNow();
+        }
     }
 }
