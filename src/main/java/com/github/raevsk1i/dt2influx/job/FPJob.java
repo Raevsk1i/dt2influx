@@ -1,5 +1,6 @@
 package com.github.raevsk1i.dt2influx.job;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.raevsk1i.dt2influx.config.metrics.FpMetrics;
 import com.github.raevsk1i.dt2influx.dto.reflex.additional.DataResult;
 import com.github.raevsk1i.dt2influx.dto.reflex.response.ReflexResponse;
@@ -14,7 +15,6 @@ import org.influxdb.InfluxDB;
 import org.influxdb.InfluxDBException;
 import org.influxdb.dto.BatchPoints;
 import org.influxdb.dto.Point;
-import tools.jackson.databind.ObjectMapper;
 
 import java.io.IOException;
 import java.net.URI;
