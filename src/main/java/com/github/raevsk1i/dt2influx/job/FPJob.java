@@ -9,7 +9,6 @@ import com.github.raevsk1i.dt2influx.entity.MetricDefinition;
 import com.github.raevsk1i.dt2influx.enums.MetricMeasurement;
 import com.github.raevsk1i.dt2influx.exceptions.HttpClientIsNullException;
 import com.github.raevsk1i.dt2influx.exceptions.ReflexResponseIsNotValidException;
-import com.github.raevsk1i.dt2influx.utils.HttpsUtils;
 import com.github.raevsk1i.dt2influx.utils.InfluxUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.influxdb.InfluxDB;
