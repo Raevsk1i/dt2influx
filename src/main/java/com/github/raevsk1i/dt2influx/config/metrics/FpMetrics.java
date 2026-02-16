@@ -65,7 +65,7 @@ public final class FpMetrics {
             new MetricDefinition(
                     MetricMeasurement.JVM,
                     "pool_committed_bytes",
-                    "(builtin:tech.jvm.memory.pool.committed:filter(in(\"dt.entity.process_group_instance\",entitySelector(\"type(~\"PROCESS_GROUP_INSTANCE~\"),entityName.contains(~\"App~\"\")))):names"),
+                    "(builtin:tech.jvm.memory.pool.committed:filter(in(\"dt.entity.process_group_instance\",entitySelector(\"type(~\"PROCESS_GROUP_INSTANCE~\"),entityName.contains(~\"App~\")\")))):names"),
             new MetricDefinition(
                     MetricMeasurement.JVM,
                     "pool_used_bytes",
