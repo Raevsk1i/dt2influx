@@ -27,12 +27,15 @@ public final class InfluxUtils {
     public static synchronized InfluxDB getInfluxClient() {
         try {
             InfluxDB client = InfluxDBFactory.connect(config.getUrl(), config.getUser(), config.getPass());
-            client = client.enableBatch(
+            client.enableBatch(
                     config.getBatch_size(),
                     config.getBatch_interval_ms(),
                     TimeUnit.MILLISECONDS);
 
-            return client.setRetentionPolicy(config.getRetention_policy());
+            client.setRetentionPolicy(config.getRetention_policy());
+            client.setDatabase(config.getDatabase());
+
+            return client;
         } catch (Exception ex) {
             return null;
         }
