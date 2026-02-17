@@ -104,7 +104,7 @@ public final class FpMetrics {
             new MetricDefinition(
                     MetricMeasurement.DISK,
                     "read_ops",
-                    "(builtin:host.disk.read0ps:splitBy(\"dt.entity.host\"):sum):names"),
+                    "(builtin:host.disk.readOps:splitBy(\"dt.entity.host\"):sum):names"),
             new MetricDefinition(
                     MetricMeasurement.DISK,
                     "write_ops",
