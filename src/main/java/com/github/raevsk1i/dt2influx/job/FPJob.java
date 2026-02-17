@@ -134,7 +134,7 @@ public class FPJob extends AbstractJob {
             case MetricMeasurement.CPU, MetricMeasurement.MEMORY -> processContainerMetrics(def, dataResultList, influxClient);
             case MetricMeasurement.JVM -> processProcessMetrics(def, dataResultList, influxClient);
             case MetricMeasurement.DISK, MetricMeasurement.NETWORK -> processHostMetrics(def, dataResultList, influxClient);
-        };
+        }
     }
 
     private void processHostMetrics(MetricDefinition def, List<DataResult> dataList,  InfluxDB influxClient) {
@@ -237,7 +237,6 @@ public class FPJob extends AbstractJob {
             log.error("Invalid Reflex response for metric: {}", def.field());
             return Optional.empty();
         }
-
         return Optional.of(reflexResponse);
     }
 
@@ -322,6 +321,5 @@ public class FPJob extends AbstractJob {
                 !response.getResult().isEmpty() &&
                 response.getResult().getFirst().getData() != null &&
                 !response.getResult().getFirst().getData().isEmpty();
-
     }
 }
