@@ -2,33 +2,8 @@ spring:
   application:
     name: dt2influx
 
-management:
-  influx:
-    metrics:
-      export:
-        auto-create-db: false
-        api-version: v1
-        enabled: false
-  dynatrace:
-    metrics:
-      export:
-        enabled: false
-  prometheus:
-    metrics:
-      export:
-        enabled: false
-  datadog:
-    metrics:
-      export:
-        enabled: false
-  appoptics:
-    metrics:
-      export:
-        enabled: false
-  atlas:
-    metrics:
-      export:
-        enabled: false
+server:
+  port: 8080
 
 env:
   influx:
@@ -44,5 +19,5 @@ env:
     url: "https://reflex/port/dddd"
     token: " Api-Token dt-c12312312"
     period: "30m"
-    interval: 5
+    interval: 300
 

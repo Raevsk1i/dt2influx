@@ -1,21 +1,14 @@
 package com.github.raevsk1i.dt2influx.dto.response;
 
 import com.github.raevsk1i.dt2influx.entity.JobInfo;
+import lombok.Builder;
 import lombok.Data;
 
 @Data
+@Builder
 public class JobResponseDto {
-
-    public JobResponseDto(JobInfo info, String message) {
-        this.info = info;
-        this.message = message;
-    }
-
-    public JobResponseDto(JobInfo info) {
-        this.info = info;
-    }
-
-    private JobInfo info;
-
+    private boolean success;
     private String message;
+
+    private JobInfo job_info;
 }

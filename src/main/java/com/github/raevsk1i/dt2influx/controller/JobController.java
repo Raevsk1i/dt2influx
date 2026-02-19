@@ -1,11 +1,9 @@
 package com.github.raevsk1i.dt2influx.controller;
-
-import com.github.raevsk1i.dt2influx.dto.request.CreateFromToJobRequestDto;
-import com.github.raevsk1i.dt2influx.dto.request.CreateJobRequestDto;
+import com.github.raevsk1i.dt2influx.dto.request.CreateFromToFSJobRequestDto;
 import com.github.raevsk1i.dt2influx.dto.request.StopJobRequestDto;
 import com.github.raevsk1i.dt2influx.dto.response.JobResponseDto;
 import com.github.raevsk1i.dt2influx.dto.response.JobsAliveResponseDto;
-import com.github.raevsk1i.dt2influx.service.JobService;
+import com.github.raevsk1i.dt2influx.service.IJobService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -15,16 +13,21 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/dt2influx/api/v1/jobs")
 public class JobController {
-    private final JobService service;
+    private final IJobService service;
 
     @Autowired
-    public JobController(JobService service) {
+    public JobController(IJobService service) {
         this.service = service;
     }
 
-    @PostMapping("/create/job/fp")
-    public ResponseEntity<JobResponseDto> createJob(@RequestBody CreateJobRequestDto request) {
+    @PostMapping("/create/job")
+    public ResponseEntity<JobResponseDto> createJob(@RequestBody Object request) {
         return service.createJob(request);
+    }
+
+    @PostMapping("/create/job/from-to")
+    public ResponseEntity<JobResponseDto> createFromToJob(@RequestBody CreateFromToFSJobRequestDto request) {
+        return service.createFromToJob(request);
     }
 
     @PostMapping("/stop/job")
@@ -37,9 +40,6 @@ public class JobController {
         return service.getAliveJobs();
     }
 
-    @PostMapping("/create/job/from-to")
-    public ResponseEntity<JobResponseDto> createFromToJob(@RequestBody CreateFromToJobRequestDto request) {
-        return service.createFromToJob(request);
-    }
+
 
 }
