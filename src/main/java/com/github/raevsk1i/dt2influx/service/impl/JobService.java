@@ -96,12 +96,14 @@ public class JobService implements IJobService {
 
             JobInfo info = scheduler.cancel(request.getId());
             if (info == null) {
+                log.error("Can't cancel Job Request: {}", request);
                 return ResponseEntity.badRequest().body(JobResponseDto.builder()
                         .job_info(null)
                         .success(false)
                         .message("Job not found")
                         .build());
             }
+            log.info("Cancel Job Request: {}", request);
             return ResponseEntity.ok().body(JobResponseDto.builder()
                     .job_info(info)
                     .success(true)
