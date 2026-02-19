@@ -2,6 +2,9 @@ spring:
   application:
     name: dt2influx
 
+server:
+  port: 8080
+
 env:
   influx:
     url: "http://localhost:8686"
@@ -16,5 +19,5 @@ env:
     url: "https://reflex/port/dddd"
     token: " Api-Token dt-c12312312"
     period: "30m"
-    interval: 5
+    interval: 300
 

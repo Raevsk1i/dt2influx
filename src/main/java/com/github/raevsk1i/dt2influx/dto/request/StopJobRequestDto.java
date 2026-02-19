@@ -4,7 +4,5 @@ import lombok.Data;
 
 @Data
 public class StopJobRequestDto {
-
-    private String namespace;
-
+    private String id;
 }

@@ -37,6 +37,7 @@ public final class InfluxUtils {
 
             return client;
         } catch (Exception ex) {
+            log.error("Error while creating InfluxDB client", ex);
             return null;
         }
     }

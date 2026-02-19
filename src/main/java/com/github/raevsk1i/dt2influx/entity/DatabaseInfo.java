@@ -1,10 +1,12 @@
 package com.github.raevsk1i.dt2influx.entity;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
 
 @Data
-public class DBInfo {
+@AllArgsConstructor
+public class DatabaseInfo {
     private String host;
+    private String database;
     private String namespace;
-    private String db;
 }

@@ -1,17 +1,64 @@
 package com.github.raevsk1i.dt2influx.service;
 
 import com.github.raevsk1i.dt2influx.entity.JobInfo;
-import com.github.raevsk1i.dt2influx.enums.StopJobStatus;
-import com.github.raevsk1i.dt2influx.job.AbstractJob;
+import com.github.raevsk1i.dt2influx.jobs.IJob;
+import com.github.raevsk1i.dt2influx.jobs.ScheduledJob;
 
-import java.util.concurrent.ScheduledFuture;
+import java.time.Duration;
+import java.util.List;
+import java.util.Optional;
 
 public interface IJobScheduler {
-    JobInfo executeJob(AbstractJob job, Integer interval);
 
-    JobInfo executeJob(AbstractJob job);
+    // === Планирование периодических задач ===
 
-    StopJobStatus stopScheduledJob(String namespace);
+    /**
+     * Запланировать задачу с фиксированным интервалом (каждые 5 минут)
+     * @return ScheduledJob - запланированная задача
+     */
+    ScheduledJob scheduleAtFixedRate(IJob job, Duration interval);
 
-    ScheduledFuture<?> getAliveJob(String namespace);
+    /**
+     * Запланировать задачу на один прогон
+     * @return ScheduledJob - запланированная задача
+     */
+    IJob scheduleOneTime(IJob job);
+
+    /**
+     * Запланировать задачу с начальной задержкой
+     */
+    String scheduleAtFixedRate(IJob job, Duration initialDelay, Duration interval);
+
+    /**
+     * Запланировать задачу с задержкой между выполнениями
+     * (следующий запуск только после завершения предыдущего)
+     */
+    String scheduleWithFixedDelay(IJob job, Duration delay);
+
+    // === Управление задачами ===
+
+    /**
+     * Отменить задачу по ID
+     */
+    JobInfo cancel(String jobId);
+
+    /**
+     * Отменить все задачи
+     */
+    void cancelAll();
+
+    /**
+     * Получать Scheduled Job по jobId
+     */
+    Optional<ScheduledJob> getScheduledJob(String jobId);
+
+    /**
+     * Получить все запущенные jobs
+     */
+    List<ScheduledJob> getAllScheduledJobs();
+
+    // === Завершение работы ===
+
+    void shutdown();
+    void shutdownAwait(Duration timeout);
 }

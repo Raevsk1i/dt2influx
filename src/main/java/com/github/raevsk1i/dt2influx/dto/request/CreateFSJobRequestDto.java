@@ -3,8 +3,7 @@ package com.github.raevsk1i.dt2influx.dto.request;
 import lombok.Data;
 
 @Data
-public class CreateDBJobRequestDto {
+public class CreateFSJobRequestDto {
     private String namespace;
-    private String host;
-    private String database;
+    private String mzId;
 }
