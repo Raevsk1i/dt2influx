@@ -62,11 +62,14 @@ public class JobScheduler implements IJobScheduler {
 
     @Override
     public JobInfo cancel(String jobId) {
-        ScheduledJob job = jobMap.get(jobId);
-        job.cancel();
-        log.info("cancelled job {}", jobId);
-        jobMap.remove(jobId);
-        return job.job().getInfo().copy();
+        if (jobMap.containsKey(jobId)) {
+            ScheduledJob job = jobMap.get(jobId);
+            job.cancel();
+            log.info("cancelled job {}", jobId);
+            jobMap.remove(jobId);
+            return job.job().getInfo().copy();
+        }
+        return null;
     }
 
     @Override
@@ -89,7 +92,9 @@ public class JobScheduler implements IJobScheduler {
 
     @Override
     public void shutdown() {
-        scheduler.shutdown();
+        scheduler.shutdownNow();
+        scheduler.close();
+        scheduler.notifyAll();
         jobMap.clear();
     }
 
