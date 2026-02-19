@@ -41,9 +41,9 @@ public class FSJob extends AbstractJob {
 
     public FSJob(JobInfo info, String mzId, ReflexConfig reflexConfig) {
         super(info, reflexConfig);
-        this.params = buildDefaultParams(info);
         this.namespace = info.getId();
         this.mzId = mzId;
+        this.params = buildDefaultParams(info);
     }
 
     private Map<String, String> buildDefaultParams(JobInfo info) {
