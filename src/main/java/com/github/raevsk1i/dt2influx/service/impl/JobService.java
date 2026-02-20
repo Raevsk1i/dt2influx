@@ -1,19 +1,22 @@
 package com.github.raevsk1i.dt2influx.service.impl;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.raevsk1i.dt2influx.config.ReflexConfig;
-import com.github.raevsk1i.dt2influx.dto.request.CreateDBJobRequestDto;
 import com.github.raevsk1i.dt2influx.dto.request.CreateFSJobRequestDto;
-import com.github.raevsk1i.dt2influx.dto.request.CreateKafkaJobRequestDto;
 import com.github.raevsk1i.dt2influx.dto.request.StopJobRequestDto;
 import com.github.raevsk1i.dt2influx.dto.response.JobResponseDto;
 import com.github.raevsk1i.dt2influx.dto.response.JobsAliveResponseDto;
 import com.github.raevsk1i.dt2influx.entity.JobInfo;
 import com.github.raevsk1i.dt2influx.enums.JobType;
+import com.github.raevsk1i.dt2influx.jobs.DBJob;
 import com.github.raevsk1i.dt2influx.jobs.IJob;
+import com.github.raevsk1i.dt2influx.jobs.KafkaJob;
 import com.github.raevsk1i.dt2influx.jobs.ScheduledJob;
+import com.github.raevsk1i.dt2influx.service.DatabaseStorage;
 import com.github.raevsk1i.dt2influx.service.IJobFactory;
 import com.github.raevsk1i.dt2influx.service.IJobScheduler;
 import com.github.raevsk1i.dt2influx.service.IJobService;
+import jakarta.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -28,17 +31,31 @@ public class JobService implements IJobService {
     private final IJobFactory factory;
     private final IJobScheduler scheduler;
     private final ReflexConfig reflexConfig;
+    private final ObjectMapper mapper;
 
     @Autowired
     public JobService(IJobFactory factory, IJobScheduler scheduler, ReflexConfig reflexConfig) {
         this.factory = factory;
         this.scheduler = scheduler;
         this.reflexConfig = reflexConfig;
+        mapper = new ObjectMapper();
+    }
+
+    @PostConstruct
+    private void initializeJobs() {
+        JobInfo infoDB = new JobInfo(JobType.DB, "DB_JOB");
+        JobInfo infoKafka = new JobInfo(JobType.KAFKA, "KAFKA_JOB");
+
+        IJob dbJob = factory.createJob(infoDB);
+        IJob kafkaJob = factory.createJob(infoKafka);
+
+        scheduler.scheduleAtFixedRate(dbJob, Duration.ofSeconds(300));
+        scheduler.scheduleAtFixedRate(kafkaJob, Duration.ofSeconds(300));
     }
 
     @Override
     public ResponseEntity<JobResponseDto> createJob(Object rawRequest) {
-        if (rawRequest instanceof CreateFSJobRequestDto request) {
+        if (mapper.convertValue(rawRequest, CreateFSJobRequestDto.class) instanceof CreateFSJobRequestDto request) {
             log.info("Create FS Job Request: {}", request);
 
             JobInfo jobInfo = new JobInfo(JobType.FS, request.getNamespace());
@@ -55,18 +72,12 @@ public class JobService implements IJobService {
                     .message("FS Job successfully created")
                     .build());
         }
-        else if (rawRequest instanceof CreateDBJobRequestDto) {
-            return ResponseEntity.badRequest().body(null);
-        }
-        else if (rawRequest instanceof CreateKafkaJobRequestDto) {
-            return ResponseEntity.badRequest().body(null);
-        }
         return buildInvalidRequestResponse(rawRequest);
     }
 
     @Override
     public ResponseEntity<JobResponseDto> createFromToJob(Object rawRequest) {
-        if (rawRequest instanceof CreateFSJobRequestDto request) {
+        if (mapper.convertValue(rawRequest, CreateFSJobRequestDto.class) instanceof CreateFSJobRequestDto request) {
             log.info("Create one-time FS Job Request: {}", request);
 
             JobInfo jobInfo = new JobInfo(JobType.FS, request.getNamespace());
@@ -79,12 +90,6 @@ public class JobService implements IJobService {
                     .success(true)
                     .message("One-time FS Job successfully created")
                     .build());
-        }
-        else if (rawRequest instanceof CreateDBJobRequestDto) {
-            return ResponseEntity.badRequest().body(null);
-        }
-        else if (rawRequest instanceof CreateKafkaJobRequestDto) {
-            return ResponseEntity.badRequest().body(null);
         }
         return buildInvalidRequestResponse(rawRequest);
     }
