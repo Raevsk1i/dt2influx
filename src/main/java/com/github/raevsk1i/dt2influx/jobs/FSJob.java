@@ -197,41 +197,6 @@ public class FSJob extends AbstractJob {
                 !response.getResult().getFirst().getData().isEmpty();
     }
 
-    private List<Point> createPoints(DataResult dataResult,
-                                     MetricMeasurement measurement,
-                                     String field,
-                                     Map<String, String> tags) {
-
-        List<Point> points = new ArrayList<>();
-        List<Long> timestamps = dataResult.getTimestamps();
-        List<Long> values = dataResult.getValues();
-
-        for (int i = 0; i < timestamps.size() && i < values.size(); i++) {
-            Point point = Point.measurement(measurement.toString().toLowerCase())
-                    .time(timestamps.get(i), TimeUnit.MILLISECONDS)
-                    .addField(field, values.get(i))
-                    .tag(tags)
-                    .build();
-            points.add(point);
-        }
-        return points;
-    }
-
-    private void writeToInfluxDB(InfluxDB influxClient, List<Point> points, MetricDefinition def) {
-        try {
-            BatchPoints batchPoints = BatchPoints.builder()
-                    .points(points)
-                    .build();
-
-            influxClient.write(batchPoints);
-            influxClient.flush();
-
-            log.debug("Successfully wrote {} points for metric: {}", points.size(), def.field());
-        } catch (InfluxDBException e) {
-            log.error("Failed to write points to InfluxDB for metric: {}", def.field(), e);
-        }
-    }
-
     private HttpRequest buildHttpRequest(MetricDefinition def) {
         String encodedParams = encodeParams(params, def.metricSelector(), getReflexUrl());
 
