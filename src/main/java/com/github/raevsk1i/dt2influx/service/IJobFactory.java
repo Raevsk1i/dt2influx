@@ -16,9 +16,8 @@ public interface IJobFactory {
     /**
      * Создать job для передачи метрик по БД
      * @param info entity с информацией по задаче
-     * @param databaseInfo entity с информацией по базе данных
      * @return Job для передачи метрик по БД
      */
-    IJob createJob(JobInfo info, DatabaseInfo databaseInfo);
+    IJob createJob(JobInfo info);
 
 }
