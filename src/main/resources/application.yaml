@@ -21,3 +21,6 @@ env:
     period: "30m"
     interval: 300
 
+database:
+  storage:
+    file: "./src/main/resources/databases.json"
