@@ -1,22 +1,28 @@
 package com.github.raevsk1i.dt2influx.jobs;
 
 import com.github.raevsk1i.dt2influx.config.ReflexConfig;
+import com.github.raevsk1i.dt2influx.dto.reflex.additional.DataResult;
 import com.github.raevsk1i.dt2influx.entity.JobInfo;
+import com.github.raevsk1i.dt2influx.entity.MetricDefinition;
+import com.github.raevsk1i.dt2influx.enums.MetricMeasurement;
 import com.github.raevsk1i.dt2influx.utils.HttpsUtils;
 import com.github.raevsk1i.dt2influx.utils.InfluxUtils;
 import lombok.Getter;
+import lombok.extern.slf4j.Slf4j;
 import org.influxdb.InfluxDB;
 import org.influxdb.InfluxDBException;
+import org.influxdb.dto.BatchPoints;
+import org.influxdb.dto.Point;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.web.client.HttpClientErrorException;
 
 import java.net.URLEncoder;
 import java.net.http.HttpClient;
 import java.nio.charset.StandardCharsets;
-import java.util.Map;
-import java.util.Objects;
-import java.util.StringJoiner;
+import java.util.*;
+import java.util.concurrent.TimeUnit;
 
+@Slf4j
 public abstract class AbstractJob implements IJob {
 
     /**
@@ -101,5 +107,40 @@ public abstract class AbstractJob implements IJob {
             throw new InfluxDBException("InfluxDB client is null or unreachable");
         }
         return influxClient;
+    }
+
+    protected void writeToInfluxDB(InfluxDB influxClient, List<Point> points, MetricDefinition def) {
+        try {
+            BatchPoints batchPoints = BatchPoints.builder()
+                    .points(points)
+                    .build();
+
+            influxClient.write(batchPoints);
+            influxClient.flush();
+
+            log.debug("Successfully wrote {} points for metric: {}", points.size(), def.field());
+        } catch (InfluxDBException e) {
+            log.error("Failed to write points to InfluxDB for metric: {}", def.field(), e);
+        }
+    }
+
+    protected List<Point> createPoints(DataResult dataResult,
+                                     MetricMeasurement measurement,
+                                     String field,
+                                     Map<String, String> tags) {
+
+        List<Point> points = new ArrayList<>();
+        List<Long> timestamps = dataResult.getTimestamps();
+        List<Long> values = dataResult.getValues();
+
+        for (int i = 0; i < timestamps.size() && i < values.size(); i++) {
+            Point point = Point.measurement(measurement.toString().toLowerCase())
+                    .time(timestamps.get(i), TimeUnit.MILLISECONDS)
+                    .addField(field, values.get(i))
+                    .tag(tags)
+                    .build();
+            points.add(point);
+        }
+        return points;
     }
 }

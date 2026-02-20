@@ -8,6 +8,7 @@ import jakarta.annotation.PreDestroy;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import java.time.Duration;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.*;
@@ -81,13 +82,17 @@ public class JobScheduler implements IJobScheduler {
     }
 
     @Override
-    public Optional<ScheduledJob> getScheduledJob(String jobId) {
+    public Optional<JobInfo> getScheduledJob(String jobId) {
         return Optional.empty();
     }
 
     @Override
-    public List<ScheduledJob> getAllScheduledJobs() {
-        return jobMap.values().stream().toList();
+    public List<JobInfo> getAllScheduledJobs() {
+        List<JobInfo> jobs = new ArrayList<>();
+        jobMap.values().stream().parallel().forEach(job -> {
+            jobs.add(job.job().getInfo());
+        });
+        return jobs;
     }
 
     @Override

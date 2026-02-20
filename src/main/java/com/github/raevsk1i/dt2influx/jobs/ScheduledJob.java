@@ -1,5 +1,7 @@
 package com.github.raevsk1i.dt2influx.jobs;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.time.Duration;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
