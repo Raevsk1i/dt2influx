@@ -71,7 +71,7 @@ public abstract class AbstractJob implements IJob {
     @Override
     public abstract void run();
 
-    private void plusExecutionCount() {
+    protected void plusExecutionCount() {
         executionCount++;
     }
 
@@ -131,7 +131,7 @@ public abstract class AbstractJob implements IJob {
 
         List<Point> points = new ArrayList<>();
         List<Long> timestamps = dataResult.getTimestamps();
-        List<Long> values = dataResult.getValues();
+        List<Float> values = dataResult.getValues();
 
         for (int i = 0; i < timestamps.size() && i < values.size(); i++) {
             Point point = Point.measurement(measurement.toString().toLowerCase())
