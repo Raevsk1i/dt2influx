@@ -59,6 +59,7 @@ public class DBJob extends AbstractJob implements IJob{
         try (InfluxDB influxClient = validateAndGetInfluxClient()) {
 
             for (DatabaseInfo database : databaseStorage.getAllDatabases()) {
+                // == Метрики хоста ==
                 for (MetricDefinition def : DBMetrics.metrics) {
 
                     Optional<ReflexResponse> response = fetchMetricResponse(def, httpClient, database.getHost());
@@ -69,6 +70,17 @@ public class DBJob extends AbstractJob implements IJob{
 
                     processHostMetrics(def, dataResultList, influxClient, database);
                 }
+                // Метрики дженерики, содержащие все процессы
+                for (MetricDefinition def : DBMetrics.generic_metrics) {
+                    Optional<ReflexResponse> response = fetchMetricResponse(def, httpClient, database.getHost());
+                    if (response.isEmpty()) {
+                        throw new ReflexResponseIsNotValidException("Reflex response isn't valid");
+                    }
+                    List<DataResult> dataResultList = response.get().getResult().getFirst().getData();
+
+                    processGenericMetrics(def, dataResultList, influxClient, database);
+                }
+
             }
         }
         catch (InterruptedException e) {
@@ -100,6 +112,27 @@ public class DBJob extends AbstractJob implements IJob{
                     def.measurement(),
                     def.field(),
                     Map.of("host", host,
+                            "namespace", namespace.toLowerCase(),
+                            "database", database.getDatabase())
+            );
+            if (!points.isEmpty()) {
+                writeToInfluxDB(influxClient, points, def);
+            }
+        }
+    }
+
+    private void processGenericMetrics(MetricDefinition def, List<DataResult> dataList, InfluxDB influxClient, DatabaseInfo database) {
+        for (DataResult data : dataList) {
+            Map<String, String> dimensions = data.getDimensionMap();
+            String process = dimensions.get("dt.entity.process_group_instance.name");
+            String namespace = database.getNamespace();
+
+            List<Point> points = createPoints(
+                    data,
+                    def.measurement(),
+                    def.field(),
+                    Map.of("host", database.getHost(),
+                            "process",  process,
                             "namespace", namespace.toLowerCase(),
                             "database", database.getDatabase())
             );
