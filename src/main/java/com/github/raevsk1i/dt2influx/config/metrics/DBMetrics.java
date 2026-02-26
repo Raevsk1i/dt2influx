@@ -22,6 +22,14 @@ public class DBMetrics {
                     MetricMeasurement.CPU,
                     "load_15m",
                     "builtin:host.cpu.load15m:filter(in(\"dt.entity.host\", entitySelector(\"type(~\"HOST~\"), entityName.contains(~\"REPLACE_IT_FOR_DB_HOST~\")\"))):names"),
+            new MetricDefinition(
+                    MetricMeasurement.CPU,
+                    "usage_percent",
+                    "builtin:host.cpu.usage:filter(in(\"dt.entity.host\", entitySelector(\"type(~\"HOST~\"), entityName.contains(~\"REPLACE_IT_FOR_DB_HOST~\")\"))):names"),
+            new MetricDefinition(
+                    MetricMeasurement.CPU,
+                    "iowait_percent",
+                    "builtin:host.cpu.iowait:filter(in(\"dt.entity.host\", entitySelector(\"type(~\"HOST~\"), entityName.contains(~\"REPLACE_IT_FOR_DB_HOST~\")\"))):names"),
 
             /*
             MEM metrics start
