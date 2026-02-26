@@ -25,11 +25,10 @@ import java.time.Duration;
 import java.util.*;
 
 @Slf4j
-public class DBJob extends AbstractJob {
+public class DBJob extends AbstractJob implements IJob{
 
     private final Map<String, String> params;
     private final DatabaseStorage databaseStorage;
-    private final String namespace;
 
     private static final ObjectMapper MAPPER = new ObjectMapper();
     private static final String RESOLUTION = "1m";
@@ -38,7 +37,6 @@ public class DBJob extends AbstractJob {
     public DBJob(JobInfo info, DatabaseStorage databaseStorage, ReflexConfig reflexConfig) {
         super(info, reflexConfig);
         this.databaseStorage = databaseStorage;
-        this.namespace = info.getId();
         this.params = buildDefaultParams(info);
     }
 
@@ -52,31 +50,26 @@ public class DBJob extends AbstractJob {
 
     @Override
     public void run() {
-
+        plusExecutionCount();
         if (databaseStorage.getAllDatabases().isEmpty()) {
             return;
         }
 
         HttpClient httpClient = validateAndGetHttpClient();
-
         try (InfluxDB influxClient = validateAndGetInfluxClient()) {
 
             for (DatabaseInfo database : databaseStorage.getAllDatabases()) {
                 for (MetricDefinition def : DBMetrics.metrics) {
 
                     Optional<ReflexResponse> response = fetchMetricResponse(def, httpClient, database.getHost());
-
                     if (response.isEmpty()) {
                         throw new ReflexResponseIsNotValidException("Reflex response isn't valid");
                     }
-
                     List<DataResult> dataResultList = response.get().getResult().getFirst().getData();
 
-                    processHostMetrics(def, dataResultList, influxClient, database.getDatabase());
-
+                    processHostMetrics(def, dataResultList, influxClient, database);
                 }
             }
-
         }
         catch (InterruptedException e) {
             Thread.currentThread().interrupt();
@@ -96,10 +89,11 @@ public class DBJob extends AbstractJob {
         }
     }
 
-    private void processHostMetrics(MetricDefinition def, List<DataResult> dataList, InfluxDB influxClient, String database) {
+    private void processHostMetrics(MetricDefinition def, List<DataResult> dataList, InfluxDB influxClient, DatabaseInfo database) {
         for (DataResult data : dataList) {
             Map<String, String> dimensions = data.getDimensionMap();
             String host = dimensions.get("dt.entity.host.name");
+            String namespace = database.getNamespace();
 
             List<Point> points = createPoints(
                     data,
@@ -107,7 +101,7 @@ public class DBJob extends AbstractJob {
                     def.field(),
                     Map.of("host", host,
                             "namespace", namespace.toLowerCase(),
-                            "database", database)
+                            "database", database.getDatabase())
             );
             if (!points.isEmpty()) {
                 writeToInfluxDB(influxClient, points, def);
