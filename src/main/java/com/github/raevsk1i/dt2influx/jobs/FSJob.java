@@ -12,7 +12,6 @@ import com.github.raevsk1i.dt2influx.exceptions.ReflexResponseIsNotValidExceptio
 import lombok.extern.slf4j.Slf4j;
 import org.influxdb.InfluxDB;
 import org.influxdb.InfluxDBException;
-import org.influxdb.dto.BatchPoints;
 import org.influxdb.dto.Point;
 import org.springframework.web.client.HttpClientErrorException;
 
@@ -23,12 +22,11 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.time.Duration;
 import java.util.*;
-import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 @Slf4j
-public class FSJob extends AbstractJob {
+public class FSJob extends AbstractJob implements IJob {
 
     private final Map<String, String> params;
     private final String namespace; // равен job_id
