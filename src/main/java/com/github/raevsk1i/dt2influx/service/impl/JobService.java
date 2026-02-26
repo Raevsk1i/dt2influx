@@ -13,9 +13,10 @@ import com.github.raevsk1i.dt2influx.jobs.ScheduledJob;
 import com.github.raevsk1i.dt2influx.service.IJobFactory;
 import com.github.raevsk1i.dt2influx.service.IJobScheduler;
 import com.github.raevsk1i.dt2influx.service.IJobService;
-import jakarta.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.event.ContextRefreshedEvent;
+import org.springframework.context.event.EventListener;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
@@ -38,9 +39,9 @@ public class JobService implements IJobService {
         mapper = new ObjectMapper();
     }
 
-    @PostConstruct
+    @EventListener(ContextRefreshedEvent.class)
     private void initializeJobs() {
-        JobInfo infoDB = new JobInfo(JobType.DB, "DB_JOB");
+        JobInfo infoDB = new JobInfo(JobType.DB, "DB_JOB", "-11m", "now");
         JobInfo infoKafka = new JobInfo(JobType.KAFKA, "KAFKA_JOB");
 
         IJob dbJob = factory.createJob(infoDB);
