@@ -27,7 +27,6 @@ public class JobScheduler implements IJobScheduler {
 
     @Override
     public ScheduledJob scheduleAtFixedRate(IJob job, Duration interval) {
-
         String id = job.getInfo().getId().toUpperCase();
 
         ScheduledFuture<?> future = scheduler.scheduleAtFixedRate(job, 0, interval.getSeconds(), TimeUnit.SECONDS);
@@ -52,13 +51,25 @@ public class JobScheduler implements IJobScheduler {
     }
 
     @Override
-    public String scheduleAtFixedRate(IJob job, Duration initialDelay, Duration interval) {
-        return "";
+    public ScheduledJob scheduleAtFixedRate(IJob job, Duration initialDelay, Duration interval) {
+        String id = job.getInfo().getId().toUpperCase();
+
+        ScheduledFuture<?> future = scheduler.scheduleAtFixedRate(job, initialDelay.getSeconds(), interval.getSeconds(), TimeUnit.SECONDS);
+        log.info("Scheduled job {} at fixed rate: {} with initial delay: {}", id, interval, initialDelay);
+
+        ScheduledJob scheduledJob = new ScheduledJob(
+                id,
+                job,
+                future,
+                interval
+        );
+        jobMap.putIfAbsent(id, scheduledJob);
+        return scheduledJob;
     }
 
     @Override
-    public String scheduleWithFixedDelay(IJob job, Duration delay) {
-        return "";
+    public ScheduledJob scheduleWithFixedDelay(IJob job, Duration delay) {
+        return null;
     }
 
     @Override

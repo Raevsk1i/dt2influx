@@ -8,11 +8,8 @@ import com.github.raevsk1i.dt2influx.dto.response.JobResponseDto;
 import com.github.raevsk1i.dt2influx.dto.response.JobsAliveResponseDto;
 import com.github.raevsk1i.dt2influx.entity.JobInfo;
 import com.github.raevsk1i.dt2influx.enums.JobType;
-import com.github.raevsk1i.dt2influx.jobs.DBJob;
 import com.github.raevsk1i.dt2influx.jobs.IJob;
-import com.github.raevsk1i.dt2influx.jobs.KafkaJob;
 import com.github.raevsk1i.dt2influx.jobs.ScheduledJob;
-import com.github.raevsk1i.dt2influx.service.DatabaseStorage;
 import com.github.raevsk1i.dt2influx.service.IJobFactory;
 import com.github.raevsk1i.dt2influx.service.IJobScheduler;
 import com.github.raevsk1i.dt2influx.service.IJobService;
@@ -49,8 +46,8 @@ public class JobService implements IJobService {
         IJob dbJob = factory.createJob(infoDB);
         IJob kafkaJob = factory.createJob(infoKafka);
 
-        scheduler.scheduleAtFixedRate(dbJob, Duration.ofSeconds(300));
-        scheduler.scheduleAtFixedRate(kafkaJob, Duration.ofSeconds(300));
+        scheduler.scheduleAtFixedRate(dbJob, Duration.ofSeconds(30), Duration.ofSeconds(300));
+        scheduler.scheduleAtFixedRate(kafkaJob, Duration.ofSeconds(30), Duration.ofSeconds(300));
     }
 
     @Override
@@ -108,7 +105,6 @@ public class JobService implements IJobService {
                         .message("Job not found")
                         .build());
             }
-            log.info("Cancel Job Request: {}", request);
             return ResponseEntity.ok().body(JobResponseDto.builder()
                     .job_info(info)
                     .success(true)

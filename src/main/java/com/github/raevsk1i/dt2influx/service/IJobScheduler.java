@@ -33,13 +33,13 @@ public interface IJobScheduler {
     /**
      * Запланировать задачу с начальной задержкой
      */
-    String scheduleAtFixedRate(IJob job, Duration initialDelay, Duration interval);
+    ScheduledJob scheduleAtFixedRate(IJob job, Duration initialDelay, Duration interval);
 
     /**
      * Запланировать задачу с задержкой между выполнениями
      * (следующий запуск только после завершения предыдущего)
      */
-    String scheduleWithFixedDelay(IJob job, Duration delay);
+    ScheduledJob scheduleWithFixedDelay(IJob job, Duration delay);
 
     // === Управление задачами ===
 
