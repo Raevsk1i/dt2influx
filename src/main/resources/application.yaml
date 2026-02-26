@@ -22,5 +22,4 @@ env:
     interval: 300
 
 database:
-  storage:
-    file: "./src/main/resources/databases.json"
+  loader: "https://lslslsllslsls"
