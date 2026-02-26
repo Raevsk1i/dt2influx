@@ -110,7 +110,6 @@ public class JobScheduler implements IJobScheduler {
     public void shutdown() {
         scheduler.shutdownNow();
         scheduler.close();
-        scheduler.notifyAll();
         jobMap.clear();
     }
 
