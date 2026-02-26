@@ -9,6 +9,7 @@ public class KafkaJob extends AbstractJob implements IJob {
         super(info, reflexConfig);
     }
 
+    // TODO: Реализовать логику работы основного метода KafkaJob
     @Override
     public void run() {
         System.out.println("Starting Kafka Job");
