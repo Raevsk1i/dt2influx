@@ -55,6 +55,7 @@ public class FSJob extends AbstractJob implements IJob {
 
     @Override
     public void run() {
+        plusExecutionCount();
         HttpClient httpClient = validateAndGetHttpClient();
 
         try (InfluxDB influxClient = validateAndGetInfluxClient()) {
