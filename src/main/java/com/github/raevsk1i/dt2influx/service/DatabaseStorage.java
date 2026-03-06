@@ -70,7 +70,7 @@ public class DatabaseStorage {
 
             DatabaseLoaderInfoDto loaderInfoDto = mapper.convertValue(response.body(), DatabaseLoaderInfoDto.class);
 
-            loaderInfoDto.getDbs().stream().parallel().forEach(db -> databases.put(db.getHost(), db));
+            loaderInfoDto.getDbs().forEach(db -> databases.put(db.getHost(), db));
             client.close();
             log.info("Database loader successfully pushed and has been closed");
 
