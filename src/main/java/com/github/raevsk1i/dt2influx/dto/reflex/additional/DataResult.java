@@ -10,5 +10,5 @@ public class DataResult {
     private List<String> dimensions;
     private Map<String, String> dimensionMap;
     private List<Long> timestamps;
-    private List<Long> values;
+    private List<Float> values;
 }

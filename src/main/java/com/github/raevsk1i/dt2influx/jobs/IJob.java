@@ -10,5 +10,4 @@ public interface IJob extends Runnable {
     long getExecutionCount();
 
     JobInfo getInfo();
-
 }

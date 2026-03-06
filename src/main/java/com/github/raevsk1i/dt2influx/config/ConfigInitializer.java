@@ -8,4 +8,10 @@ import org.springframework.context.annotation.Configuration;
         InfluxConfig.class,
         ReflexConfig.class,
 })
-public class ConfigInitializer {}
+public class ConfigInitializer {
+
+    /*
+     TODO: Реализовать логику инициализации параметров для баз данных, и топиков кафки
+     */
+
+}

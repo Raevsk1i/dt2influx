@@ -5,5 +5,6 @@ public enum MetricMeasurement {
     MEMORY,
     JVM,
     NETWORK,
-    DISK
+    DISK,
+    KAFKA
 }

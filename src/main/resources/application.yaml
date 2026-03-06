@@ -21,3 +21,5 @@ env:
     period: "30m"
     interval: 300
 
+database:
+  loader: "https://lslslsllslsls"

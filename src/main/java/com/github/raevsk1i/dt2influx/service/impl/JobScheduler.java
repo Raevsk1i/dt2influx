@@ -8,6 +8,7 @@ import jakarta.annotation.PreDestroy;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import java.time.Duration;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.*;
@@ -26,7 +27,6 @@ public class JobScheduler implements IJobScheduler {
 
     @Override
     public ScheduledJob scheduleAtFixedRate(IJob job, Duration interval) {
-
         String id = job.getInfo().getId().toUpperCase();
 
         ScheduledFuture<?> future = scheduler.scheduleAtFixedRate(job, 0, interval.getSeconds(), TimeUnit.SECONDS);
@@ -51,22 +51,37 @@ public class JobScheduler implements IJobScheduler {
     }
 
     @Override
-    public String scheduleAtFixedRate(IJob job, Duration initialDelay, Duration interval) {
-        return "";
+    public ScheduledJob scheduleAtFixedRate(IJob job, Duration initialDelay, Duration interval) {
+        String id = job.getInfo().getId().toUpperCase();
+
+        ScheduledFuture<?> future = scheduler.scheduleAtFixedRate(job, initialDelay.getSeconds(), interval.getSeconds(), TimeUnit.SECONDS);
+        log.info("Scheduled job {} at fixed rate: {} with initial delay: {}", id, interval, initialDelay);
+
+        ScheduledJob scheduledJob = new ScheduledJob(
+                id,
+                job,
+                future,
+                interval
+        );
+        jobMap.putIfAbsent(id, scheduledJob);
+        return scheduledJob;
     }
 
     @Override
-    public String scheduleWithFixedDelay(IJob job, Duration delay) {
-        return "";
+    public ScheduledJob scheduleWithFixedDelay(IJob job, Duration delay) {
+        return null;
     }
 
     @Override
     public JobInfo cancel(String jobId) {
-        ScheduledJob job = jobMap.get(jobId);
-        job.cancel();
-        log.info("cancelled job {}", jobId);
-        jobMap.remove(jobId);
-        return job.job().getInfo().copy();
+        if (jobMap.containsKey(jobId)) {
+            ScheduledJob job = jobMap.get(jobId);
+            job.cancel();
+            log.info("cancelled job {}", jobId);
+            jobMap.remove(jobId);
+            return job.job().getInfo().copy();
+        }
+        return null;
     }
 
     @Override
@@ -78,18 +93,23 @@ public class JobScheduler implements IJobScheduler {
     }
 
     @Override
-    public Optional<ScheduledJob> getScheduledJob(String jobId) {
+    public Optional<JobInfo> getScheduledJob(String jobId) {
         return Optional.empty();
     }
 
     @Override
-    public List<ScheduledJob> getAllScheduledJobs() {
-        return jobMap.values().stream().toList();
+    public List<JobInfo> getAllScheduledJobs() {
+        List<JobInfo> jobs = new ArrayList<>();
+        jobMap.values().stream().parallel().forEach(job -> {
+            jobs.add(job.job().getInfo());
+        });
+        return jobs;
     }
 
     @Override
     public void shutdown() {
-        scheduler.shutdown();
+        scheduler.shutdownNow();
+        scheduler.close();
         jobMap.clear();
     }
 

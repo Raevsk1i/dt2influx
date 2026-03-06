@@ -10,5 +10,5 @@ import java.util.List;
 @Data
 @Builder
 public class JobsAliveResponseDto {
-    List<ScheduledJob> jobs;
+    List<JobInfo> jobs;
 }
