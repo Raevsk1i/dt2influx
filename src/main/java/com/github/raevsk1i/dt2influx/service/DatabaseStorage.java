@@ -43,9 +43,7 @@ public class DatabaseStorage {
     }
 
     public List<DatabaseInfo> getAllDatabases() {
-        List<DatabaseInfo> dbs = new ArrayList<>();
-        databases.values().stream().parallel().forEach(dbs::add);
-        return dbs;
+        return new ArrayList<>(databases.values());
     }
 
     private void loadDatabases(String loader) {
