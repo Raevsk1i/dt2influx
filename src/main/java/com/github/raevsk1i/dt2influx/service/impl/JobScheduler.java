@@ -8,7 +8,6 @@ import jakarta.annotation.PreDestroy;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import java.time.Duration;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.*;
@@ -69,16 +68,29 @@ public class JobScheduler implements IJobScheduler {
 
     @Override
     public ScheduledJob scheduleWithFixedDelay(IJob job, Duration delay) {
-        return null;
+        String id = job.getInfo().getId().toUpperCase();
+
+        ScheduledFuture<?> future = scheduler.scheduleWithFixedDelay(job, 0, delay.getSeconds(), TimeUnit.SECONDS);
+        log.info("Scheduled job {} with fixed delay: {}", id, delay);
+
+        ScheduledJob scheduledJob = new ScheduledJob(
+                id,
+                job,
+                future,
+                delay
+        );
+        jobMap.putIfAbsent(id, scheduledJob);
+        return scheduledJob;
     }
 
     @Override
     public JobInfo cancel(String jobId) {
-        if (jobMap.containsKey(jobId)) {
-            ScheduledJob job = jobMap.get(jobId);
+        String normalizedJobId = jobId.toUpperCase();
+        if (jobMap.containsKey(normalizedJobId)) {
+            ScheduledJob job = jobMap.get(normalizedJobId);
             job.cancel();
-            log.info("cancelled job {}", jobId);
-            jobMap.remove(jobId);
+            log.info("cancelled job {}", normalizedJobId);
+            jobMap.remove(normalizedJobId);
             return job.job().getInfo().copy();
         }
         return null;
@@ -94,16 +106,15 @@ public class JobScheduler implements IJobScheduler {
 
     @Override
     public Optional<JobInfo> getScheduledJob(String jobId) {
-        return Optional.empty();
+        return Optional.ofNullable(jobMap.get(jobId.toUpperCase()))
+                .map(job -> job.job().getInfo().copy());
     }
 
     @Override
     public List<JobInfo> getAllScheduledJobs() {
-        List<JobInfo> jobs = new ArrayList<>();
-        jobMap.values().stream().parallel().forEach(job -> {
-            jobs.add(job.job().getInfo());
-        });
-        return jobs;
+        return jobMap.values().stream()
+                .map(job -> job.job().getInfo().copy())
+                .toList();
     }
 
     @Override
@@ -116,10 +127,11 @@ public class JobScheduler implements IJobScheduler {
     @Override
     public void shutdownAwait(Duration timeout) {
         try {
+            scheduler.shutdown();
             scheduler.awaitTermination(timeout.getSeconds(), TimeUnit.SECONDS);
-            Thread.sleep(timeout);
             jobMap.clear();
         } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
             log.error(e.getMessage());
             shutdown();
         }

@@ -21,6 +21,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.time.Duration;
+import java.util.Optional;
 
 @Slf4j
 @Service
@@ -32,11 +33,11 @@ public class JobService implements IJobService {
     private final ObjectMapper mapper;
 
     @Autowired
-    public JobService(IJobFactory factory, IJobScheduler scheduler, ReflexConfig reflexConfig) {
+    public JobService(IJobFactory factory, IJobScheduler scheduler, ReflexConfig reflexConfig, ObjectMapper mapper) {
         this.factory = factory;
         this.scheduler = scheduler;
         this.reflexConfig = reflexConfig;
-        mapper = new ObjectMapper();
+        this.mapper = mapper;
     }
 
     @EventListener(ContextRefreshedEvent.class)
@@ -44,16 +45,15 @@ public class JobService implements IJobService {
         JobInfo infoDB = new JobInfo(JobType.DB, "DB_JOB", "-11m", "now");
         JobInfo infoKafka = new JobInfo(JobType.KAFKA, "KAFKA_JOB");
 
-        IJob dbJob = factory.createJob(infoDB);
-        IJob kafkaJob = factory.createJob(infoKafka);
-
-        scheduler.scheduleAtFixedRate(dbJob, Duration.ofSeconds(30), Duration.ofSeconds(300));
-        scheduler.scheduleAtFixedRate(kafkaJob, Duration.ofSeconds(30), Duration.ofSeconds(300));
+        schedulePredefinedJob(infoDB);
+        schedulePredefinedJob(infoKafka);
     }
 
     @Override
     public ResponseEntity<JobResponseDto> createJob(Object rawRequest) {
-        if (mapper.convertValue(rawRequest, CreateFSJobRequestDto.class) instanceof CreateFSJobRequestDto request) {
+        Optional<CreateFSJobRequestDto> requestOptional = convertRequest(rawRequest, CreateFSJobRequestDto.class);
+        if (requestOptional.isPresent()) {
+            CreateFSJobRequestDto request = requestOptional.get();
             log.info("Create FS Job Request: {}", request);
 
             JobInfo jobInfo = new JobInfo(JobType.FS, request.getNamespace());
@@ -75,7 +75,9 @@ public class JobService implements IJobService {
 
     @Override
     public ResponseEntity<JobResponseDto> createFromToJob(Object rawRequest) {
-        if (mapper.convertValue(rawRequest, CreateFSJobRequestDto.class) instanceof CreateFSJobRequestDto request) {
+        Optional<CreateFSJobRequestDto> requestOptional = convertRequest(rawRequest, CreateFSJobRequestDto.class);
+        if (requestOptional.isPresent()) {
+            CreateFSJobRequestDto request = requestOptional.get();
             log.info("Create one-time FS Job Request: {}", request);
 
             JobInfo jobInfo = new JobInfo(JobType.FS, request.getNamespace());
@@ -123,11 +125,29 @@ public class JobService implements IJobService {
     }
 
     private ResponseEntity<JobResponseDto> buildInvalidRequestResponse(Object rawRequest) {
-        log.warn("Invalid request: {}", rawRequest.toString());
+        log.warn("Invalid request: {}", rawRequest);
         return ResponseEntity.badRequest().body(JobResponseDto.builder()
                 .job_info(null)
                 .success(false)
                 .message("Invalid request")
                 .build());
+    }
+
+    private <T> Optional<T> convertRequest(Object rawRequest, Class<T> clazz) {
+        try {
+            return Optional.of(mapper.convertValue(rawRequest, clazz));
+        } catch (IllegalArgumentException ex) {
+            log.warn("Failed to parse request to {}", clazz.getSimpleName(), ex);
+            return Optional.empty();
+        }
+    }
+
+    private void schedulePredefinedJob(JobInfo info) {
+        try {
+            IJob job = factory.createJob(info);
+            scheduler.scheduleAtFixedRate(job, Duration.ofSeconds(30), Duration.ofSeconds(300));
+        } catch (RuntimeException ex) {
+            log.warn("Failed to schedule predefined job {}", info.getId(), ex);
+        }
     }
 }
