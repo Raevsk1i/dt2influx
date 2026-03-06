@@ -68,7 +68,7 @@ public class DatabaseStorage {
                 return;
             }
 
-            DatabaseLoaderInfoDto loaderInfoDto = mapper.convertValue(response.body(), DatabaseLoaderInfoDto.class);
+            DatabaseLoaderInfoDto loaderInfoDto = mapper.readValue(response.body(), DatabaseLoaderInfoDto.class);
 
             loaderInfoDto.getDbs().forEach(db -> databases.put(db.getHost(), db));
             client.close();
