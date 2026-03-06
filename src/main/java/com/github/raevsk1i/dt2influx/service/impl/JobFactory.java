@@ -1,14 +1,12 @@
 package com.github.raevsk1i.dt2influx.service.impl;
 
 import com.github.raevsk1i.dt2influx.config.ReflexConfig;
-import com.github.raevsk1i.dt2influx.entity.DatabaseInfo;
 import com.github.raevsk1i.dt2influx.entity.JobInfo;
 import com.github.raevsk1i.dt2influx.enums.JobType;
 import com.github.raevsk1i.dt2influx.exceptions.NoSuitableJobException;
 import com.github.raevsk1i.dt2influx.jobs.DBJob;
 import com.github.raevsk1i.dt2influx.jobs.FSJob;
 import com.github.raevsk1i.dt2influx.jobs.IJob;
-import com.github.raevsk1i.dt2influx.jobs.KafkaJob;
 import com.github.raevsk1i.dt2influx.service.DatabaseStorage;
 import com.github.raevsk1i.dt2influx.service.IJobFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -42,9 +40,6 @@ public class JobFactory implements IJobFactory {
         switch (Objects.requireNonNull(info.getType())) {
             case JobType.DB -> {
                 return new DBJob(info, databaseStorage, reflexConfig);
-            }
-            case JobType.KAFKA -> {
-                return new KafkaJob(info, reflexConfig);
             }
             default -> throw new NoSuitableJobException(info);
         }

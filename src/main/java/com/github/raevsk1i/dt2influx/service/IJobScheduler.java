@@ -1,14 +1,8 @@
 package com.github.raevsk1i.dt2influx.service;
 
-import com.github.raevsk1i.dt2influx.config.ReflexConfig;
 import com.github.raevsk1i.dt2influx.entity.JobInfo;
-import com.github.raevsk1i.dt2influx.enums.JobType;
-import com.github.raevsk1i.dt2influx.jobs.DBJob;
 import com.github.raevsk1i.dt2influx.jobs.IJob;
-import com.github.raevsk1i.dt2influx.jobs.KafkaJob;
 import com.github.raevsk1i.dt2influx.jobs.ScheduledJob;
-import jakarta.annotation.PostConstruct;
-import org.springframework.beans.factory.annotation.Autowired;
 
 import java.time.Duration;
 import java.util.List;
