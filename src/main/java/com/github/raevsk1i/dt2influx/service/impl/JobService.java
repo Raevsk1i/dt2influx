@@ -43,10 +43,8 @@ public class JobService implements IJobService {
     @EventListener(ContextRefreshedEvent.class)
     private void initializeJobs() {
         JobInfo infoDB = new JobInfo(JobType.DB, "DB_JOB", "-11m", "now");
-        JobInfo infoKafka = new JobInfo(JobType.KAFKA, "KAFKA_JOB");
 
         schedulePredefinedJob(infoDB);
-        schedulePredefinedJob(infoKafka);
     }
 
     @Override
