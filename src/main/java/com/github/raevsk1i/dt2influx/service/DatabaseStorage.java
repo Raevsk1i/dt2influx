@@ -43,9 +43,7 @@ public class DatabaseStorage {
     }
 
     public List<DatabaseInfo> getAllDatabases() {
-        List<DatabaseInfo> dbs = new ArrayList<>();
-        databases.values().stream().parallel().forEach(dbs::add);
-        return dbs;
+        return new ArrayList<>(databases.values());
     }
 
     private void loadDatabases(String loader) {
@@ -70,9 +68,9 @@ public class DatabaseStorage {
                 return;
             }
 
-            DatabaseLoaderInfoDto loaderInfoDto = mapper.convertValue(response.body(), DatabaseLoaderInfoDto.class);
+            DatabaseLoaderInfoDto loaderInfoDto = mapper.readValue(response.body(), DatabaseLoaderInfoDto.class);
 
-            loaderInfoDto.getDbs().stream().parallel().forEach(db -> databases.put(db.getHost(), db));
+            loaderInfoDto.getDbs().forEach(db -> databases.put(db.getHost(), db));
             client.close();
             log.info("Database loader successfully pushed and has been closed");
 
