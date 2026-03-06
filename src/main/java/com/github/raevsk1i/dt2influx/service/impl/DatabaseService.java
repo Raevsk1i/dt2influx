@@ -38,7 +38,7 @@ public class DatabaseService implements IDatabaseService {
 
     @Override
     public ResponseEntity<DatabaseResponseDto> deleteDatabase(DatabaseDeleteRequestDto requestDto) {
-        for (DatabaseInfo databaseInfo : databaseStorage.getAllDatabases()) {
+        for (DatabaseInfo databaseInfo : requestDto.getDatabases()) {
             databaseStorage.deleteDatabase(databaseInfo.getHost());
         }
 
